@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A static HTML5 audiobook library/player for legal direct audio links, pasted HTML, CORS-friendly page URLs, and local files." />
+  <meta name="theme-color" content="#101114" />
+  <title>Easy Audiobook Player</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="src/styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero card">
+      <div>
+        <p class="eyebrow">Static HTML5 app</p>
+        <h1>Easy Audiobook Player</h1>
+        <p class="hero-copy">Build a browser audiobook library from direct audio links, copied page HTML, legal page URLs, or local audio files. No backend required.</p>
+      </div>
+      <div class="hero-badge" aria-hidden="true">♫</div>
+    </header>
+
+    <div class="layout">
+      <aside class="card sidebar" aria-label="Library controls">
+        <section>
+          <div class="cover" id="coverBox">AUDIO<br />BOOK<br />PLAYER</div>
+          <div class="book-picker">
+            <label for="bookSelect">Current book</label>
+            <select id="bookSelect"></select>
+            <button id="deleteBook" class="button danger" type="button">Delete</button>
+          </div>
+          <p class="hint">Everything is saved in this browser using localStorage. Export JSON if you want a backup.</p>
+        </section>
+
+        <section class="panel">
+          <h2>Add a book</h2>
+          <div class="tabs" role="tablist" aria-label="Import method">
+            <button id="tabPaste" class="tab active" type="button" role="tab" aria-selected="true">Paste links/HTML</button>
+            <button id="tabPage" class="tab" type="button" role="tab" aria-selected="false">Page URL</button>
+            <button id="tabFiles" class="tab" type="button" role="tab" aria-selected="false">Local files</button>
+          </div>
+
+          <div id="pastePanel" class="tab-panel">
+            <label for="pasteTitle">Book title</label>
+            <input id="pasteTitle" autocomplete="off" placeholder="e.g. My Public Domain Audiobook" />
+            <label for="pasteAuthor">Author / narrator, optional</label>
+            <input id="pasteAuthor" autocomplete="off" placeholder="Optional" />
+            <label for="pasteText">Direct audio links or copied HTML</label>
+            <textarea id="pasteText" spellcheck="false" placeholder="Paste .mp3, .m4a, .ogg, .wav, .aac, .flac, or .opus links here. Copied audio-player HTML works too."></textarea>
+            <div class="button-row two">
+              <button id="scanPaste" class="button" type="button">Find audio</button>
+              <button id="addPaste" class="button primary" type="button">Add book</button>
+            </div>
+          </div>
+
+          <div id="pagePanel" class="tab-panel hidden">
+            <label for="pageUrl">Page URL</label>
+            <input id="pageUrl" inputmode="url" placeholder="https://example.com/audiobook-page/" />
+            <p class="notice">Page import only works when that website allows CORS. This app will not bypass logins, paywalls, DRM, or blocked cross-origin pages. If import fails, copy the page's legal audio links or HTML and use Paste links/HTML.</p>
+            <button id="importPage" class="button primary full" type="button">Import allowed audio links from page</button>
+          </div>
+
+          <div id="filesPanel" class="tab-panel hidden">
+            <label for="fileTitle">Book title</label>
+            <input id="fileTitle" autocomplete="off" placeholder="e.g. My Local Audiobook" />
+            <label for="fileAuthor">Author / narrator, optional</label>
+            <input id="fileAuthor" autocomplete="off" placeholder="Optional" />
+            <label for="fileInput">Choose audio files</label>
+            <div class="drop-zone" id="dropZone">
+              <input id="fileInput" type="file" accept="audio/*" multiple />
+              <p>Choose files or drag audio files here.</p>
+            </div>
+            <p class="hint">Local files play in this session. Browsers usually do not preserve file access after a reload.</p>
+          </div>
+
+          <div id="status" class="status hidden" role="status" aria-live="polite"></div>
+        </section>
+
+        <section class="panel">
+          <details>
+            <summary>Backup, restore, and tools</summary>
+            <div class="tool-grid">
+              <button id="exportJson" class="button" type="button">Download JSON</button>
+              <label class="button file-button" for="importJsonFile">Upload JSON</label>
+              <input id="importJsonFile" class="visually-hidden" type="file" accept="application/json,.json" />
+              <button id="copyJson" class="button" type="button">Copy JSON</button>
+              <button id="resetAll" class="button danger" type="button">Reset all</button>
+            </div>
+            <label for="jsonBox">Library JSON</label>
+            <textarea id="jsonBox" spellcheck="false"></textarea>
+            <button id="loadJson" class="button primary full" type="button">Load JSON from text box</button>
+          </details>
+        </section>
+      </aside>
+
+      <main class="card player-card" aria-label="Audiobook player">
+        <div class="player-header">
+          <div>
+            <p class="eyebrow" id="bookMeta">No book selected</p>
+            <h2 id="bookTitle">Add a book to start</h2>
+            <p id="chapterTitle" class="chapter-title">Paste legal audio links or import your own files.</p>
+          </div>
+          <button id="themeToggle" class="button icon-button" type="button" aria-label="Toggle theme">◐</button>
+        </div>
+        <audio id="player" controls preload="metadata"></audio>
+        <div class="transport" aria-label="Playback controls">
+          <button id="prevBtn" class="button" type="button">Previous</button>
+          <button id="backBtn" class="button" type="button">−15 sec</button>
+          <button id="playBtn" class="button primary" type="button">Play / Pause</button>
+          <button id="fwdBtn" class="button" type="button">+15 sec</button>
+          <button id="nextBtn" class="button" type="button">Next</button>
+        </div>
+        <div class="progress-box">
+          <div id="progressText">Progress is saved automatically.</div>
+          <div class="speed-control">
+            <label for="speedSelect">Speed</label>
+            <select id="speedSelect"><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="1.75">1.75×</option><option value="2">2×</option></select>
+          </div>
+        </div>
+        <section>
+          <div class="section-heading">
+            <h3>Chapters</h3>
+            <input id="chapterFilter" class="filter" placeholder="Filter chapters" autocomplete="off" />
+          </div>
+          <div id="chapterList" class="chapter-list"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <template id="emptyTemplate"><div class="empty-state"><strong>No chapters yet.</strong><span>Add a book from the left panel.</span></div></template>
+  <script src="src/app.js" defer></script>
+</body>
+</html>
