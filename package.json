@@ -1,0 +1,12 @@
+{
+  "name": "easy-audiobook-player",
+  "version": "1.0.0",
+  "description": "A static HTML5 audiobook library/player for legal direct audio links and local files.",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --check src/app.js && node --check server.js && node scripts/smoke-test.js"
+  },
+  "keywords": ["audiobook", "html5-audio", "static-site", "github-pages", "javascript"],
+  "license": "MIT"
+}
